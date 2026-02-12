@@ -75,11 +75,21 @@ async function fetchCategories() {
 	})
 }
 
+// -------------------------------------------------------
+// Fonction : filtrer les works par catégorie
+// - Si categorieId est null, on retourne tous les éléments
+// - Sinon, on ne garde que ceux dont le categoryId correspond
+// -------------------------------------------------------
 function filtrer(elements, categorieId) {
 	if (categorieId === null) return elements;
 	return elements.filter(el => el.categoryId === categorieId);
 }
 
+// -------------------------------------------------------
+// Fonction : filtrer les works puis les afficher
+// - On appelle filtrer() sur allWorks avec la catégorie choisie
+// - On passe le résultat à displayWorks() pour mettre à jour la galerie
+// -------------------------------------------------------
 function filtrerEtAfficher(categorieId) {
 	const resultats = filtrer(allWorks, categorieId);
 	displayWorks(resultats);
