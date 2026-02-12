@@ -41,8 +41,16 @@ function displayWorks(works) {
 	// TODO : boucler sur les works et créer les éléments
 	for (let i = 0; i < works.length; i++ ) {
 		// console.log(i);
-		// console.log(works[i]);
-
+		const figure = document.createElement("figure");
+		const img = document.createElement("img");
+		img.src = works[i].imageUrl; 
+		img.alt = works[i].title; 
+		const figcaption = document.createElement("figcaption");
+		figcaption.textContent = works[i].title;
+		figure.appendChild(img);
+		figure.appendChild(figcaption);
+		console.log(figure);
+		gallery.appendChild(figure);
 	}
 }
 
