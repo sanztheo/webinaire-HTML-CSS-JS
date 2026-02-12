@@ -6,107 +6,124 @@
 const gallery = document.getElementById("gallery");
 const filtersContainer = document.getElementById("filters");
 
-// Variable pour stocker tous les works récupérés depuis l'API
+// -- Cache des données : un seul appel API, réutilisé par les filtres
 let allWorks = [];
+let allCategories = [];
+let activeFilter = null;
 
 
 // -------------------------------------------------------
-// Fonction : récupérer les works depuis l'API
-// - Faire un fetch GET sur /works
-// - Stocker le résultat dans allWorks
-// - Appeler displayWork() pour les afficher
+// Fonction : récupérer les works depuis l'API (une seule fois)
+// - Fait un fetch GET sur /works
+// - Stocke le résultat dans allWorks (cache local)
+// - Appelle renderGallery() pour afficher les works
 // -------------------------------------------------------
 async function fetchWorks() {
-	// On fait le fetch, puis on parse la réponse en JSON
 	allWorks = await fetchData("/works");
-	for (const work of allWorks ) {
-		displayWork(work);
-	}
+	renderGallery();
 }
 
 
 // -------------------------------------------------------
 // Fonction : afficher les works dans la galerie
-// - Vider le contenu de la div.gallery
-// - Pour chaque work, créer une <figure> avec :
-//     <img src="work.imageUrl" alt="work.title">
-//     <figcaption>work.title</figcaption>
-// - Ajouter chaque figure dans la galerie
+// - Vide la galerie existante
+// - Filtre les works selon la catégorie active (en mémoire, pas d'appel API)
+// - Utilise un DocumentFragment pour insérer tout d'un coup (performance)
 // -------------------------------------------------------
-function displayWork(work) {
-	const figure = document.createElement("figure");
-	const img = document.createElement("img");
-	img.src = work.imageUrl; 
-	img.alt = work.title; 
-	const figcaption = document.createElement("figcaption");
-	figcaption.textContent = work.title;
-	figure.appendChild(img);
-	figure.appendChild(figcaption);
-	gallery.appendChild(figure);
+function renderGallery() {
+	gallery.innerHTML = "";
+
+	const worksToDisplay = activeFilter === null
+		? allWorks
+		: allWorks.filter((work) => work.categoryId === activeFilter);
+
+	const fragment = document.createDocumentFragment();
+
+	for (const work of worksToDisplay) {
+		const figure = document.createElement("figure");
+		figure.dataset.id = work.id;
+
+		const img = document.createElement("img");
+		img.src = work.imageUrl;
+		img.alt = work.title;
+
+		const figcaption = document.createElement("figcaption");
+		figcaption.textContent = work.title;
+
+		figure.appendChild(img);
+		figure.appendChild(figcaption);
+		fragment.appendChild(figure);
+	}
+
+	gallery.appendChild(fragment);
 }
 
 
 // -------------------------------------------------------
-// Fonction : récupérer les catégories depuis l'API
-// - Faire un fetch GET sur /categories
-// - Créer un bouton "Tous" + un bouton par catégorie
-// - Au clic sur un filtre, filtrer allWorks par categoryId
+// Fonction : récupérer les catégories depuis l'API (une seule fois)
+// - Fait un fetch GET sur /categories
+// - Stocke le résultat dans allCategories (cache local)
+// - Appelle renderFilters() pour créer les boutons
 // -------------------------------------------------------
 async function fetchCategories() {
-	// TODO : fetch les catégories depuis l'API
-	const categories = await fetchData("/categories");
-	// TODO : créer le bouton "Tous" (filtre par défaut, classe .active)
-	const btnTous = document.createElement("button");
-	btnTous.textContent = "Tous";
+	allCategories = await fetchData("/categories");
+	renderFilters();
+}
+
+
+// -------------------------------------------------------
+// Fonction : créer tous les boutons de filtre
+// - Bouton "Tous" (filtre par défaut, classe .active)
+// - Un bouton par catégorie
+// -------------------------------------------------------
+function renderFilters() {
+	filtersContainer.innerHTML = "";
+
+	// Bouton "Tous" → affiche toutes les catégories
+	const btnTous = createFilterButton("Tous", null);
 	btnTous.classList.add("active");
-	btnTous.addEventListener("click", () => {
-		filtrerEtAfficher(null);
-		gererClassActive(btnTous);
-	});
 	filtersContainer.appendChild(btnTous);
-	// TODO : boucler sur les catégories pour créer les boutons
-	categories.forEach(id => {
-		const btn = document.createElement("button");
-		btn.textContent = id.name;
-		btn.addEventListener("click", () => {
-			filtrerEtAfficher(id.id);
-			gererClassActive(btn);
-		});
-		filtersContainer.appendChild(btn);
-	})
+
+	// Un bouton par catégorie récupérée depuis l'API
+	for (const category of allCategories) {
+		filtersContainer.appendChild(
+			createFilterButton(category.name, category.id)
+		);
+	}
 }
 
-// -------------------------------------------------------
-// Fonction : filtrer les works par catégorie
-// - Si categorieId est null, on retourne tous les éléments
-// - Sinon, on ne garde que ceux dont le categoryId correspond
-// -------------------------------------------------------
-function filtrer(elements, categorieId) {
-	if (categorieId === null) return elements;
-	return elements.filter(el => el.categoryId === categorieId);
-}
 
 // -------------------------------------------------------
-// Fonction : filtrer les works puis les afficher
-// - On appelle filtrer() sur allWorks avec la catégorie choisie
-// - On passe le résultat à displayWork() pour mettre à jour la galerie (en utilisant les diplays)
+// Fonction : créer un bouton de filtre individuel
+// - Au clic : met à jour activeFilter + re-render la galerie
+// - Aucun appel API → on filtre le cache allWorks en mémoire
 // -------------------------------------------------------
-function filtrerEtAfficher(categorieId) {
-	const resultats = filtrer(allWorks, categorieId);
-	displayWork(resultats);
+function createFilterButton(label, categoryId) {
+	const btn = document.createElement("button");
+	btn.textContent = label;
+
+	btn.addEventListener("click", () => {
+		activeFilter = categoryId;
+		setActiveButton(btn);
+		renderGallery();
+	});
+
+	return btn;
 }
+
 
 // -------------------------------------------------------
 // Fonction : gérer la classe active sur les boutons filtres
-// - Retirer la classe "active" de TOUS les boutons
-// - Ajouter la classe "active" au bouton cliqué
+// - Retire la classe "active" de TOUS les boutons
+// - Ajoute la classe "active" au bouton cliqué
 // -------------------------------------------------------
-function gererClassActive(btn) {
-	document.querySelectorAll(".filters button").forEach(btn => {
-		btn.classList.remove("active");
-	});
-	btn.classList.add("active");
+function setActiveButton(activeBtn) {
+	const buttons = filtersContainer.querySelectorAll("button");
+	for (const btn of buttons) {
+		btn.classList.toggle("active", btn === activeBtn);
+	}
 }
+
 
 // -------------------------------------------------------
 // Initialisation au chargement de la page
