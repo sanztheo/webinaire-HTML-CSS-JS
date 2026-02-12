@@ -18,7 +18,8 @@ let allWorks = [];
 // -------------------------------------------------------
 async function fetchWorks() {
 	// On fait le fetch, puis on parse la réponse en JSON
-	const allWorks = await fetchData("/works");
+	allWorks = await fetchData("/works");
+	console.log(allWorks);
 	// TODO : appeler displayWorks(allWorks)
 	displayWorks(allWorks);
 }
@@ -33,6 +34,7 @@ async function fetchWorks() {
 // - Ajouter chaque figure dans la galerie
 // -------------------------------------------------------
 function displayWorks(works) {
+	
 	// TODO : boucler sur les works et créer les éléments
 	gallery.innerHTML = works.map(({title, imageUrl}) => 
 		`<figure>
@@ -53,12 +55,35 @@ async function fetchCategories() {
 	// TODO : fetch les catégories depuis l'API
 	const categories = await fetchData("/categories");
 	// TODO : créer le bouton "Tous" (filtre par défaut, classe .active)
+	const btnTous = document.createElement("button");
+	btnTous.textContent = "Tous";
+	btnTous.classList.add("actif");
+	btnTous.addEventListener("click", () => {
+		filtrerEtAfficher(null);
+		 // gererClassActive(btnTous);
+	});
+	filtersContainer.appendChild(btnTous);
 	// TODO : boucler sur les catégories pour créer les boutons
-	// TODO : ajouter un addEventListener "click" sur chaque bouton
-	//        → filtrer allWorks et appeler displayWorks()
-	//        → gérer la classe .active sur le bouton cliqué
+	categories.forEach(id => {
+		const btn = document.createElement("button");
+		btn.textContent = id.name;
+		btn.addEventListener("click", () => {
+			filtrerEtAfficher(id.id);
+			// gererClassActive(btn);
+		});
+		filtersContainer.appendChild(btn);
+	})
 }
 
+function filtrer(elements, categorieId) {
+	if (categorieId === null) return elements;
+	return elements.filter(el => el.categoryId === categorieId);
+}
+
+function filtrerEtAfficher(categorieId) {
+	const resultats = filtrer(allWorks, categorieId);
+	displayWorks(resultats);
+}
 
 // -------------------------------------------------------
 // Initialisation au chargement de la page
