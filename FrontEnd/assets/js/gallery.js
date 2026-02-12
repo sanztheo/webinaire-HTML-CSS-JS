@@ -23,6 +23,7 @@ async function fetchWorks() {
 
 	console.log(allWorks);
 	// TODO : appeler displayWorks(allWorks)
+	displayWorks(allWorks);
 }
 
 
@@ -36,7 +37,13 @@ async function fetchWorks() {
 // -------------------------------------------------------
 function displayWorks(works) {
 	// TODO : vider la galerie
+	gallery.innerHTML = "";
 	// TODO : boucler sur les works et créer les éléments
+	for (let i = 0; i < works.length; i++ ) {
+		// console.log(i);
+		// console.log(works[i]);
+
+	}
 }
 
 
