@@ -18,8 +18,7 @@ let allWorks = [];
 // -------------------------------------------------------
 async function fetchWorks() {
 	// On fait le fetch, puis on parse la réponse en JSON
-	const reponse = await fetch(API_URL + "/works");
-	allWorks = await reponse.json();
+	const allWorks = await fetchData("/works");
 	// TODO : appeler displayWorks(allWorks)
 	displayWorks(allWorks);
 }
@@ -34,8 +33,6 @@ async function fetchWorks() {
 // - Ajouter chaque figure dans la galerie
 // -------------------------------------------------------
 function displayWorks(works) {
-	// TODO : vider la galerie
-	gallery.innerHTML = "";
 	// TODO : boucler sur les works et créer les éléments
 	gallery.innerHTML = works.map(({title, imageUrl}) => 
 		`<figure>
@@ -54,6 +51,8 @@ function displayWorks(works) {
 // -------------------------------------------------------
 async function fetchCategories() {
 	// TODO : fetch les catégories depuis l'API
+	const reponse = await fetch(API_URL + "/categories");
+	const categories = await reponse.json();
 	// TODO : créer le bouton "Tous" (filtre par défaut, classe .active)
 	// TODO : boucler sur les catégories pour créer les boutons
 	// TODO : ajouter un addEventListener "click" sur chaque bouton
