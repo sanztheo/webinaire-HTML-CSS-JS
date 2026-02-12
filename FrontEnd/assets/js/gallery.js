@@ -17,8 +17,11 @@ let allWorks = [];
 // - Appeler displayWorks() pour les afficher
 // -------------------------------------------------------
 async function fetchWorks() {
-	// TODO : fetch les works depuis l'API
-	// TODO : stocker dans allWorks
+	// On fait le fetch, puis on parse la réponse en JSON
+	const reponse = await fetch(API_URL + "/works");
+	allWorks = await reponse.json();
+
+	console.log(allWorks);
 	// TODO : appeler displayWorks(allWorks)
 }
 
