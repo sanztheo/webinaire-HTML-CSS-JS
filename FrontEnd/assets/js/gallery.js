@@ -57,7 +57,7 @@ async function fetchCategories() {
 	// TODO : créer le bouton "Tous" (filtre par défaut, classe .active)
 	const btnTous = document.createElement("button");
 	btnTous.textContent = "Tous";
-	btnTous.classList.add("actif");
+	btnTous.classList.add("active");
 	btnTous.addEventListener("click", () => {
 		filtrerEtAfficher(null);
 		 gererClassActive(btnTous);
