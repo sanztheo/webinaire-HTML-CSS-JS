@@ -51,8 +51,7 @@ function displayWorks(works) {
 // -------------------------------------------------------
 async function fetchCategories() {
 	// TODO : fetch les catégories depuis l'API
-	const reponse = await fetch(API_URL + "/categories");
-	const categories = await reponse.json();
+	const categories = await fetchData("/categories");
 	// TODO : créer le bouton "Tous" (filtre par défaut, classe .active)
 	// TODO : boucler sur les catégories pour créer les boutons
 	// TODO : ajouter un addEventListener "click" sur chaque bouton
