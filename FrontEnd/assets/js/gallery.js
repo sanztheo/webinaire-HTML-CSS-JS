@@ -14,12 +14,14 @@ let allWorks = [];
 // Fonction : récupérer les works depuis l'API
 // - Faire un fetch GET sur /works
 // - Stocker le résultat dans allWorks
-// - Appeler displayWorks() pour les afficher
+// - Appeler displayWork() pour les afficher
 // -------------------------------------------------------
 async function fetchWorks() {
 	// On fait le fetch, puis on parse la réponse en JSON
 	allWorks = await fetchData("/works");
-	displayWorks(allWorks);
+	for (const work of allWorks ) {
+		displayWork(work);
+	}
 }
 
 
@@ -31,20 +33,16 @@ async function fetchWorks() {
 //     <figcaption>work.title</figcaption>
 // - Ajouter chaque figure dans la galerie
 // -------------------------------------------------------
-function displayWorks(works) {
-	
-	// TODO : boucler sur les works et créer les éléments
-	for (const work of works) {
-		const figure = document.createElement("figure");
-		const img = document.createElement("img");
-		img.src = work.imageUrl; 
-		img.alt = work.title; 
-		const figcaption = document.createElement("figcaption");
-		figcaption.textContent = work.title;
-		figure.appendChild(img);
-		figure.appendChild(figcaption);
-		gallery.appendChild(figure);
-	}
+function displayWork(work) {
+	const figure = document.createElement("figure");
+	const img = document.createElement("img");
+	img.src = work.imageUrl; 
+	img.alt = work.title; 
+	const figcaption = document.createElement("figcaption");
+	figcaption.textContent = work.title;
+	figure.appendChild(img);
+	figure.appendChild(figcaption);
+	gallery.appendChild(figure);
 }
 
 
@@ -91,11 +89,11 @@ function filtrer(elements, categorieId) {
 // -------------------------------------------------------
 // Fonction : filtrer les works puis les afficher
 // - On appelle filtrer() sur allWorks avec la catégorie choisie
-// - On passe le résultat à displayWorks() pour mettre à jour la galerie (en utilisant les diplays)
+// - On passe le résultat à displayWork() pour mettre à jour la galerie (en utilisant les diplays)
 // -------------------------------------------------------
 function filtrerEtAfficher(categorieId) {
 	const resultats = filtrer(allWorks, categorieId);
-	displayWorks(resultats);
+	displayWork(resultats);
 }
 
 // -------------------------------------------------------
