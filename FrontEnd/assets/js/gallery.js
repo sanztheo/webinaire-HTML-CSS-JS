@@ -17,13 +17,28 @@ let allWorks = [];
 // - Appeler displayWorks() pour les afficher
 // -------------------------------------------------------
 async function fetchWorks() {
+	// Afficher les skeletons pendant le chargement
+	afficherSkeletons();
 	// On fait le fetch, puis on parse la réponse en JSON
 	allWorks = await fetchData("/works");
-	console.log(allWorks);
-	// TODO : appeler displayWorks(allWorks)
+	// Remplace les skeletons par les vrais works
 	displayWorks(allWorks);
 }
 
+
+// -------------------------------------------------------
+// Fonction : afficher les skeleton loaders pendant le chargement
+// - Génère 6 placeholders avec animation shimmer
+// - Sera remplacé par displayWorks() une fois les données chargées
+// -------------------------------------------------------
+function afficherSkeletons() {
+	gallery.innerHTML = Array(6).fill(`
+		<figure class="skeleton-card">
+			<div class="skeleton" style="width:100%;height:200px"></div>
+			<div class="skeleton" style="width:60%;height:14px;margin-top:8px"></div>
+		</figure>
+	`).join("");
+}
 
 // -------------------------------------------------------
 // Fonction : afficher les works dans la galerie
