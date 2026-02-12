@@ -33,7 +33,6 @@ async function fetchWorks() {
 // -------------------------------------------------------
 function displayWorks(works) {
 	
-	gallery.innerHTML = "";
 	// TODO : boucler sur les works et créer les éléments
 	for (const work of works) {
 		const figure = document.createElement("figure");
@@ -92,7 +91,7 @@ function filtrer(elements, categorieId) {
 // -------------------------------------------------------
 // Fonction : filtrer les works puis les afficher
 // - On appelle filtrer() sur allWorks avec la catégorie choisie
-// - On passe le résultat à displayWorks() pour mettre à jour la galerie
+// - On passe le résultat à displayWorks() pour mettre à jour la galerie (en utilisant les diplays)
 // -------------------------------------------------------
 function filtrerEtAfficher(categorieId) {
 	const resultats = filtrer(allWorks, categorieId);
