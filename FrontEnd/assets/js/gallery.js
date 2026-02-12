@@ -33,13 +33,19 @@ async function fetchWorks() {
 // -------------------------------------------------------
 function displayWorks(works) {
 	
+	gallery.innerHTML = "";
 	// TODO : boucler sur les works et créer les éléments
-	gallery.innerHTML = works.map(({title, imageUrl}) => 
-		`<figure>
-			<img src="${imageUrl}" alt="${title}">
-			<figcaption>${title}</figcaption>
-		</figure>`
-	).join("");
+	for (const work of works) {
+		const figure = document.createElement("figure");
+		const img = document.createElement("img");
+		img.src = work.imageUrl; 
+		img.alt = work.title; 
+		const figcaption = document.createElement("figcaption");
+		figcaption.textContent = work.title;
+		figure.appendChild(img);
+		figure.appendChild(figcaption);
+		gallery.appendChild(figure);
+	}
 }
 
 

@@ -5,7 +5,7 @@
 
 const API_URL = "http://localhost:5678/api";
 
-async function  fetchData(endpoint) {
+async function fetchData(endpoint) {
     const reponse = await fetch(API_URL + endpoint);
     if (!reponse.ok) throw new Error(`Erreur ${reponse.status}`);
     return reponse.json();
