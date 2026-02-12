@@ -95,13 +95,16 @@ function filtrerEtAfficher(categorieId) {
 	displayWorks(resultats);
 }
 
+// -------------------------------------------------------
+// Fonction : gérer la classe active sur les boutons filtres
+// - Retirer la classe "active" de TOUS les boutons
+// - Ajouter la classe "active" au bouton cliqué
+// -------------------------------------------------------
 function gererClassActive(btn) {
 	document.querySelectorAll(".filters button").forEach(btn => {
 		btn.classList.remove("active");
 	});
-
 	btn.classList.add("active");
-	
 }
 
 // -------------------------------------------------------
