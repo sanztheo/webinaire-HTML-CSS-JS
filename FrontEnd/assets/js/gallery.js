@@ -37,14 +37,12 @@ function displayWorks(works) {
 	// TODO : vider la galerie
 	gallery.innerHTML = "";
 	// TODO : boucler sur les works et créer les éléments
-	for (const {title, imageUrl} of works) {
-		const html = `<figure>
+	gallery.innerHTML = works.map(({title, imageUrl}) => 
+		`<figure>
 			<img src="${imageUrl}" alt="${title}">
 			<figcaption>${title}</figcaption>
-		</figure>`;
-		gallery.innerHTML += html;
-	
-	}
+		</figure>`
+	).join("");
 }
 
 
