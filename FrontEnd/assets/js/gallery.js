@@ -37,16 +37,13 @@ function displayWorks(works) {
 	// TODO : vider la galerie
 	gallery.innerHTML = "";
 	// TODO : boucler sur les works et créer les éléments
-	for (const work of works) {
-		const figure = document.createElement("figure");
-		const img = document.createElement("img");
-		img.src = work.imageUrl; 
-		img.alt = work.title; 
-		const figcaption = document.createElement("figcaption");
-		figcaption.textContent = work.title;
-		figure.appendChild(img);
-		figure.appendChild(figcaption);
-		gallery.appendChild(figure);
+	for (const {title, imageUrl} of works) {
+		const html = `<figure>
+			<img src="${imageUrl}" alt="${title}">
+			<figcaption>${title}</figcaption>
+		</figure>`;
+		gallery.innerHTML += html;
+	
 	}
 }
 
