@@ -58,7 +58,7 @@ async function fetchCategories() {
 	btnTous.classList.add("active");
 	btnTous.addEventListener("click", () => {
 		filtrerEtAfficher(null);
-		 gererClassActive(btnTous);
+		gererClassActive(btnTous);
 	});
 	filtersContainer.appendChild(btnTous);
 	// TODO : boucler sur les catégories pour créer les boutons
