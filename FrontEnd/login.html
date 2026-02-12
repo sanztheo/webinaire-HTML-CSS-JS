@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<title>Login - Sophie Bluel</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans&display=swap" rel="stylesheet">
+	<meta name="description" content="">
+	<!-- Styles de base + styles spécifiques à la page login -->
+	<link rel="stylesheet" href="./assets/style.css">
+	<link rel="stylesheet" href="./assets/login.css">
+</head>
+<body>
+
+<header>
+	<h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
+	<nav>
+		<ul>
+			<li><a href="index.html#portfolio">projets</a></li>
+			<li><a href="index.html#contact">contact</a></li>
+			<!-- On met le lien login en gras car on est dessus -->
+			<li><a href="login.html"><strong>login</strong></a></li>
+			<li><a href="https://www.instagram.com" target="_blank"><img src="./assets/icons/instagram.png" alt="Instagram"></a></li>
+		</ul>
+	</nav>
+</header>
+
+<main>
+	<!-- Formulaire de connexion -->
+	<section class="login-section">
+		<h2>Log In</h2>
+
+		<form class="login-form" id="login-form" action="#" method="post">
+			<label for="login-email">E-mail</label>
+			<input type="email" name="email" id="login-email" required>
+
+			<label for="login-password">Mot de passe</label>
+			<input type="password" name="password" id="login-password" required>
+
+			<!-- Le JS interceptera le submit pour envoyer les identifiants à l'API -->
+			<input type="submit" value="Se connecter">
+		</form>
+
+		<!-- Lien mot de passe oublié -->
+		<p class="forgot-password"><a href="#">Mot de passe oublié</a></p>
+	</section>
+</main>
+
+<footer>
+	<nav>
+		<ul>
+			<li>Mentions Légales</li>
+		</ul>
+	</nav>
+</footer>
+
+</body>
+</html>

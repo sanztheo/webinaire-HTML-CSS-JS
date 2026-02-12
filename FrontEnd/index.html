@@ -7,21 +7,35 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans&display=swap" rel="stylesheet">
+	<!-- Font Awesome pour les icônes (édition, poubelle, etc.) -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 	<meta name="description" content="">
+	<!-- Feuilles de styles séparées pour mieux organiser le code -->
 	<link rel="stylesheet" href="./assets/style.css">
+	<link rel="stylesheet" href="./assets/admin.css">
+	<link rel="stylesheet" href="./assets/modal.css">
 </head>
 <body>
+
+<!-- Bandeau noir "Mode édition" - visible uniquement quand l'admin est connecté -->
+<div id="edit-banner" class="edit-banner" style="display: none;">
+	<p><i class="fa-regular fa-pen-to-square"></i> Mode édition</p>
+</div>
+
 <header>
 	<h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
 	<nav>
 		<ul>
-			<li>projets</li>
-			<li>contact</li>
-			<li>login</li>
-			<li><img src="./assets/icons/instagram.png" alt="Instagram"></li>
+			<li><a href="#portfolio">projets</a></li>
+			<li><a href="#contact">contact</a></li>
+			<!-- Le JS basculera entre login/logout selon l'état de connexion -->
+			<li id="login-link"><a href="login.html">login</a></li>
+			<li id="logout-link" style="display: none;"><a href="#">logout</a></li>
+			<li><a href="https://www.instagram.com" target="_blank"><img src="./assets/icons/instagram.png" alt="Instagram"></a></li>
 		</ul>
 	</nav>
 </header>
+
 <main>
 	<section id="introduction">
 		<figure>
@@ -30,16 +44,26 @@
 		<article>
 			<h2>Designer d'espace</h2>
 			<p>Je raconte votre histoire, je valorise vos idées. Je vous accompagne de la conception à la livraison finale du chantier.</p>
-			<p>Chaque projet sera étudié en commun, de façon à mettre en valeur les volumes, les matières et les couleurs dans le respect de l’esprit des lieux et le choix adapté des matériaux. Le suivi du chantier sera assuré dans le souci du détail, le respect du planning et du budget.</p>
+			<p>Chaque projet sera étudié en commun, de façon à mettre en valeur les volumes, les matières et les couleurs dans le respect de l'esprit des lieux et le choix adapté des matériaux. Le suivi du chantier sera assuré dans le souci du détail, le respect du planning et du budget.</p>
 			<p>En cas de besoin, une équipe pluridisciplinaire peut-être constituée : architecte DPLG, décorateur(trice)</p>
 		</article>
 	</section>
+
 	<section id="portfolio">
-		<h2>Mes Projets</h2>
-		<div class="gallery">
-			
+		<!-- En-tête avec titre + bouton modifier (le bouton est caché par défaut) -->
+		<div class="portfolio-header">
+			<h2>Mes Projets</h2>
+			<!-- Ce bouton ouvre la modale - le JS le rend visible quand on est connecté -->
+			<button id="edit-works-btn" class="edit-btn" style="display: none;">
+				<i class="fa-regular fa-pen-to-square"></i> modifier
+			</button>
 		</div>
+		<!-- Conteneur des filtres par catégorie - les boutons seront créés par le JS -->
+		<div class="filters" id="filters"></div>
+		<!-- Galerie des projets - les figures seront injectées par le JS depuis l'API -->
+		<div class="gallery" id="gallery"></div>
 	</section>
+
 	<section id="contact">
 		<h2>Contact</h2>
 		<p>Vous avez un projet ? Discutons-en !</p>
@@ -62,5 +86,74 @@
 		</ul>
 	</nav>
 </footer>
+
+<!-- ================================================================ -->
+<!--  MODALE : Galerie photo + Ajout photo                           -->
+<!--  Cachée par défaut, le JS gère l'ouverture / fermeture          -->
+<!-- ================================================================ -->
+<div id="modal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+	<!-- Fond sombre - un clic dessus fermera la modale (via JS) -->
+	<div class="modal-overlay"></div>
+
+	<div class="modal-wrapper">
+
+		<!-- ====== Vue 1 : Galerie photo ====== -->
+		<div id="modal-gallery-view" class="modal-gallery-view">
+			<button class="modal-close" aria-label="Fermer">&times;</button>
+			<h3 class="modal-title">Galerie photo</h3>
+
+			<!-- Grille des miniatures - remplies dynamiquement par le JS -->
+			<div class="modal-gallery-grid" id="modal-gallery-grid">
+				<!-- Chaque photo sera une div.modal-gallery-item avec img + bouton supprimer -->
+			</div>
+
+			<hr class="modal-separator">
+			<!-- Bouton pour passer à la vue "Ajout photo" -->
+			<button id="modal-add-photo-btn" class="modal-submit-btn">Ajouter une photo</button>
+		</div>
+
+		<!-- ====== Vue 2 : Formulaire d'ajout de photo ====== -->
+		<div id="modal-add-view" class="modal-add-view" style="display: none;">
+			<!-- Flèche retour + bouton fermer -->
+			<button class="modal-back" aria-label="Retour"><i class="fa-solid fa-arrow-left"></i></button>
+			<button class="modal-close" aria-label="Fermer">&times;</button>
+
+			<h3 class="modal-title">Ajout photo</h3>
+
+			<!-- Zone d'upload - le JS gère la prévisualisation de l'image -->
+			<div class="photo-upload-zone" id="photo-upload-zone">
+				<i class="fa-regular fa-image upload-icon"></i>
+				<label class="upload-label">
+					+ Ajouter photo
+					<input type="file" id="photo-file" name="image" accept="image/png, image/jpeg" hidden>
+				</label>
+				<p class="upload-info">jpg, png : 4mo max</p>
+			</div>
+
+			<!-- Aperçu de l'image choisie (caché tant qu'aucune image n'est sélectionnée) -->
+			<div class="photo-preview" id="photo-preview" style="display: none;">
+				<img id="preview-img" src="" alt="Aperçu">
+			</div>
+
+			<!-- Formulaire titre + catégorie -->
+			<form id="add-photo-form" class="add-photo-form">
+				<label for="photo-title">Titre</label>
+				<input type="text" id="photo-title" name="title" required>
+
+				<label for="photo-category">Catégorie</label>
+				<!-- Les options seront chargées depuis l'API par le JS -->
+				<select id="photo-category" name="category" required>
+					<option value="" disabled selected></option>
+				</select>
+
+				<hr class="modal-separator">
+				<!-- Bouton grisé par défaut, le JS ajoute la classe .active quand le form est rempli -->
+				<button type="submit" id="validate-btn" class="modal-validate-btn" disabled>Valider</button>
+			</form>
+		</div>
+
+	</div>
+</div>
+
 </body>
 </html>

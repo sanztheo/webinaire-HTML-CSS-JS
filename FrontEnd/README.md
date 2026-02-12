@@ -1,0 +1,1 @@
+Lancement du serveur : python3 -m http.server 5500

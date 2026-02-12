@@ -1,0 +1,41 @@
+/* ===================================== */
+/* Styles pour le mode administrateur    */
+/* (bandeau édition + bouton modifier)   */
+/* ===================================== */
+
+/* Bandeau noir "Mode édition" tout en haut de la page */
+.edit-banner {
+	background-color: #000000;
+	color: #FFFFFF;
+	text-align: center;
+	padding: 12px 0;
+	font-size: 14px;
+	/* Le bandeau doit prendre toute la largeur de l'écran */
+	/* même si le body est limité à 1140px */
+	width: 100vw;
+	margin-left: calc(-50vw + 50%);
+}
+
+.edit-banner p {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+}
+
+/* Bouton "modifier" à côté du titre "Mes Projets" */
+.edit-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-family: 'Work Sans';
+	font-size: 14px;
+	color: #000000;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.edit-btn:hover {
+	text-decoration: underline;
+}
