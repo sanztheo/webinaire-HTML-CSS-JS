@@ -60,7 +60,7 @@ async function fetchCategories() {
 	btnTous.classList.add("actif");
 	btnTous.addEventListener("click", () => {
 		filtrerEtAfficher(null);
-		 // gererClassActive(btnTous);
+		 gererClassActive(btnTous);
 	});
 	filtersContainer.appendChild(btnTous);
 	// TODO : boucler sur les catégories pour créer les boutons
@@ -69,7 +69,7 @@ async function fetchCategories() {
 		btn.textContent = id.name;
 		btn.addEventListener("click", () => {
 			filtrerEtAfficher(id.id);
-			// gererClassActive(btn);
+			gererClassActive(btn);
 		});
 		filtersContainer.appendChild(btn);
 	})
@@ -93,6 +93,15 @@ function filtrer(elements, categorieId) {
 function filtrerEtAfficher(categorieId) {
 	const resultats = filtrer(allWorks, categorieId);
 	displayWorks(resultats);
+}
+
+function gererClassActive(btn) {
+	document.querySelectorAll(".filters button").forEach(btn => {
+		btn.classList.remove("active");
+	});
+
+	btn.classList.add("active");
+	
 }
 
 // -------------------------------------------------------
