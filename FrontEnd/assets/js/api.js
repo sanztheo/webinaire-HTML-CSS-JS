@@ -12,6 +12,8 @@ async function fetchData(endpoint) {
     
 }
 
+
+
 // -- Endpoints disponibles :
 // GET    /works        → récupérer tous les travaux
 // GET    /categories   → récupérer les catégories
