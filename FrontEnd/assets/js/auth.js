@@ -11,17 +11,36 @@
 //            cacher les filtres (en mode admin on n'en a pas besoin)
 // - Si non : ne rien changer (tout est déjà caché par défaut)
 // -------------------------------------------------------
+
+function manageBlock(element, bool) {
+	// Montrer un elements
+	if (bool === true) {
+		return document.getElementById(element).style.display = null;
+	} else {
+		return document.getElementById(element).style.display = 'none';
+		
+	}
+} 
+
 function checkAuth() {
 	const token = localStorage.getItem("token");
 
+
 	if (token) {
+		console.log("Login");
 		// TODO : afficher le bandeau mode édition (#edit-banner)
+		manageBlock("edit-banner", true);
 		// TODO : afficher le bouton modifier (#edit-works-btn)
+		manageBlock("edit-works-btn", true);
 		// TODO : cacher le lien "login" (#login-link)
+		manageBlock("login-link", false);
 		// TODO : afficher le lien "logout" (#logout-link)
+		manageBlock("logout-link", true);
 		// TODO : (optionnel) cacher les filtres (#filters)
+		manageBlock("filters", false);
 	}
 }
+
 
 
 // -------------------------------------------------------
@@ -36,7 +55,9 @@ function setupLogout() {
 		logoutLink.addEventListener("click", function (e) {
 			// TODO : empêcher le comportement par défaut
 			// TODO : supprimer le token → localStorage.removeItem("token")
+			localStorage.removeItem("token");
 			// TODO : rediriger vers index.html ou recharger la page
+			location.reload();
 		});
 	}
 }

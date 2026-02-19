@@ -21,9 +21,7 @@ loginForm.addEventListener("submit", async (event) => {
 	const email = event.target.querySelector("[name=email]").value;
 	const password = event.target.querySelector("[name=password]").value;
 
-	if (!passwordChamp){
-		const token = await envoyerLogin(email, password);
-	}
+	const token = await envoyerLogin(email, password);
 
 	if (token) {
 		localStorage.setItem("token", token);
