@@ -12,33 +12,20 @@
 // - Si non : ne rien changer (tout est déjà caché par défaut)
 // -------------------------------------------------------
 
-function manageBlock(element, bool) {
-	// Montrer un elements
-	if (bool === true) {
-		return document.getElementById(element).style.display = null;
-	} else {
-		return document.getElementById(element).style.display = 'none';
-		
-	}
+function setElementVisibilite(id, visible) {
+	const element = document.getElementById(id);
+	if (!element) return;
+	element.style.display = visible ? "" : 'none';
 } 
 
 function checkAuth() {
 	const token = localStorage.getItem("token");
-
-
-	if (token) {
-		console.log("Login");
-		// TODO : afficher le bandeau mode édition (#edit-banner)
-		manageBlock("edit-banner", true);
-		// TODO : afficher le bouton modifier (#edit-works-btn)
-		manageBlock("edit-works-btn", true);
-		// TODO : cacher le lien "login" (#login-link)
-		manageBlock("login-link", false);
-		// TODO : afficher le lien "logout" (#logout-link)
-		manageBlock("logout-link", true);
-		// TODO : (optionnel) cacher les filtres (#filters)
-		manageBlock("filters", false);
-	}
+	if (!token) return;
+	setElementVisibilite("edit-banner", true);
+	setElementVisibilite("edit-works-btn", true);
+	setElementVisibilite("login-link", false);
+	setElementVisibilite("logout-link", true);
+	setElementVisibilite("filters", false);
 }
 
 
@@ -54,6 +41,7 @@ function setupLogout() {
 	if (logoutLink) {
 		logoutLink.addEventListener("click", function (e) {
 			// TODO : empêcher le comportement par défaut
+			e.preventDefault();
 			// TODO : supprimer le token → localStorage.removeItem("token")
 			localStorage.removeItem("token");
 			// TODO : rediriger vers index.html ou recharger la page
