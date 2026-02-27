@@ -44,7 +44,7 @@ function setupLogout() {
 			e.preventDefault();
 			// TODO : supprimer le token → localStorage.removeItem("token")
 			localStorage.removeItem("token");
-			// TODO : rediriger vers index.html ou recharger la page
+			// TODO : rappelle de setElementVisibilite manipulation DOM
 			setElementVisibilite("edit-banner", false);
 			setElementVisibilite("edit-works-btn", false);
 			setElementVisibilite("login-link", true);
