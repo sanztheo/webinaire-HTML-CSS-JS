@@ -45,7 +45,11 @@ function setupLogout() {
 			// TODO : supprimer le token → localStorage.removeItem("token")
 			localStorage.removeItem("token");
 			// TODO : rediriger vers index.html ou recharger la page
-			location.reload();
+			setElementVisibilite("edit-banner", false);
+			setElementVisibilite("edit-works-btn", false);
+			setElementVisibilite("login-link", true);
+			setElementVisibilite("logout-link", false);
+			setElementVisibilite("filters", true);
 		});
 	}
 }
