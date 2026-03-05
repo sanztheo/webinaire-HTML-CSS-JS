@@ -2,7 +2,7 @@
 // Modale : galerie photo + ajout photo
 // ======================================
 
-// -- Récupération des éléments du DOM
+// -- DOM
 const modal = document.getElementById("modal");
 const modalGalleryView = document.getElementById("modal-gallery-view");
 const modalAddView = document.getElementById("modal-add-view");
@@ -10,7 +10,6 @@ const modalGalleryGrid = document.getElementById("modal-gallery-grid");
 const editWorksBtn = document.getElementById("edit-works-btn");
 const addPhotoBtn = document.getElementById("modal-add-photo-btn");
 
-// Éléments du formulaire d'ajout
 const photoFile = document.getElementById("photo-file");
 const photoUploadZone = document.getElementById("photo-upload-zone");
 const photoPreview = document.getElementById("photo-preview");
@@ -20,7 +19,12 @@ const photoTitle = document.getElementById("photo-title");
 const photoCategory = document.getElementById("photo-category");
 const validateBtn = document.getElementById("validate-btn");
 
+// -- Constantes
+const MAX_FILE_SIZE = 4 * 1024 * 1024;
+
+// -- État
 let categoriesLoaded = false;
+let previousFocus = null;
 
 
 // ============================================================
@@ -28,17 +32,22 @@ let categoriesLoaded = false;
 // ============================================================
 
 function openModal() {
+	previousFocus = document.activeElement;
 	modal.style.display = "flex";
 	modal.setAttribute("aria-hidden", "false");
+	document.body.style.overflow = "hidden";
 	showGalleryView();
 	displayModalGallery();
+	modal.querySelector(".modal-close").focus();
 }
 
 function closeModal() {
 	modal.style.display = "none";
 	modal.setAttribute("aria-hidden", "true");
+	document.body.style.overflow = "";
 	showGalleryView();
 	resetAddForm();
+	if (previousFocus) previousFocus.focus();
 }
 
 function showGalleryView() {
@@ -51,27 +60,23 @@ function showAddView() {
 	modalAddView.style.display = "";
 }
 
-// Clic sur le bouton "modifier" → ouvre la modale
+// -- Listeners d'ouverture / fermeture
 editWorksBtn.addEventListener("click", openModal);
-
-// Clic sur l'overlay → ferme la modale
 modal.querySelector(".modal-overlay").addEventListener("click", closeModal);
 
-// Clic sur les boutons × → ferme la modale
 for (const btn of modal.querySelectorAll(".modal-close")) {
 	btn.addEventListener("click", closeModal);
 }
 
-// Fermer avec Échap
 document.addEventListener("keydown", function (e) {
-	if (e.key === "Escape" && modal.style.display === "flex") {
+	if (e.key === "Escape" && modal.getAttribute("aria-hidden") === "false") {
 		closeModal();
 	}
 });
 
 
 // ============================================================
-//  2. VUE GALERIE : afficher les miniatures + supprimer
+//  2. VUE GALERIE : miniatures + suppression
 // ============================================================
 
 function displayModalGallery() {
@@ -89,6 +94,7 @@ function displayModalGallery() {
 		const deleteBtn = document.createElement("button");
 		deleteBtn.classList.add("delete-btn");
 		deleteBtn.dataset.id = work.id;
+		deleteBtn.setAttribute("aria-label", "Supprimer " + work.title);
 
 		const icon = document.createElement("i");
 		icon.classList.add("fa-solid", "fa-trash-can");
@@ -102,23 +108,29 @@ function displayModalGallery() {
 	modalGalleryGrid.appendChild(fragment);
 }
 
-// Délégation d'événement : un seul listener pour tous les boutons supprimer
+// Délégation d'événement + confirmation avant suppression
 modalGalleryGrid.addEventListener("click", function (e) {
 	const deleteBtn = e.target.closest(".delete-btn");
-	if (deleteBtn) deleteWork(deleteBtn.dataset.id);
+	if (!deleteBtn) return;
+	if (!confirm("Supprimer cette photo ?")) return;
+	deleteWork(deleteBtn.dataset.id);
 });
 
 async function deleteWork(workId) {
 	const token = localStorage.getItem("token");
 
-	const response = await fetch(API_URL + "/works/" + workId, {
-		method: "DELETE",
-		headers: { Authorization: "Bearer " + token },
-	});
+	try {
+		const response = await fetch(API_URL + "/works/" + workId, {
+			method: "DELETE",
+			headers: { Authorization: "Bearer " + token },
+		});
 
-	if (response.ok) {
+		if (!response.ok) throw new Error("Erreur " + response.status);
+
 		await fetchWorks();
 		displayModalGallery();
+	} catch (error) {
+		alert("Impossible de supprimer : " + error.message);
 	}
 }
 
@@ -132,7 +144,6 @@ addPhotoBtn.addEventListener("click", function () {
 	if (!categoriesLoaded) loadCategories();
 });
 
-// Clic sur la flèche retour → revient à la vue galerie
 modal.querySelector(".modal-back").addEventListener("click", function () {
 	showGalleryView();
 	resetAddForm();
@@ -140,23 +151,25 @@ modal.querySelector(".modal-back").addEventListener("click", function () {
 
 
 // ============================================================
-//  4. FORMULAIRE D'AJOUT : upload image + titre + catégorie
+//  4. FORMULAIRE D'AJOUT
 // ============================================================
 
 async function loadCategories() {
-	const categories = await fetchData("/categories");
+	try {
+		const categories = await fetchData("/categories");
+		photoCategory.length = 1;
 
-	// Garder uniquement l'option placeholder
-	photoCategory.length = 1;
+		for (const cat of categories) {
+			const option = document.createElement("option");
+			option.value = cat.id;
+			option.textContent = cat.name;
+			photoCategory.appendChild(option);
+		}
 
-	for (const cat of categories) {
-		const option = document.createElement("option");
-		option.value = cat.id;
-		option.textContent = cat.name;
-		photoCategory.appendChild(option);
+		categoriesLoaded = true;
+	} catch (error) {
+		alert("Impossible de charger les catégories.");
 	}
-
-	categoriesLoaded = true;
 }
 
 // Prévisualisation de l'image
@@ -164,7 +177,7 @@ photoFile.addEventListener("change", function () {
 	const file = photoFile.files[0];
 	if (!file) return;
 
-	if (file.size > 4 * 1024 * 1024) {
+	if (file.size > MAX_FILE_SIZE) {
 		alert("L'image ne doit pas dépasser 4 Mo.");
 		photoFile.value = "";
 		return;
@@ -194,9 +207,10 @@ function checkFormValidity() {
 photoTitle.addEventListener("input", checkFormValidity);
 photoCategory.addEventListener("change", checkFormValidity);
 
-// Soumission du formulaire
+// Soumission avec protection double-clic
 addPhotoForm.addEventListener("submit", async function (e) {
 	e.preventDefault();
+	validateBtn.disabled = true;
 
 	const formData = new FormData();
 	formData.append("image", photoFile.files[0]);
@@ -205,19 +219,24 @@ addPhotoForm.addEventListener("submit", async function (e) {
 
 	const token = localStorage.getItem("token");
 
-	const response = await fetch(API_URL + "/works", {
-		method: "POST",
-		headers: { Authorization: "Bearer " + token },
-		body: formData,
-	});
+	try {
+		const response = await fetch(API_URL + "/works", {
+			method: "POST",
+			headers: { Authorization: "Bearer " + token },
+			body: formData,
+		});
 
-	if (response.ok) {
+		if (!response.ok) throw new Error("Erreur " + response.status);
+
 		await fetchWorks();
 		closeModal();
+	} catch (error) {
+		alert("Impossible d'ajouter la photo : " + error.message);
+		validateBtn.disabled = false;
 	}
 });
 
-// Réinitialiser le formulaire d'ajout
+// Réinitialiser le formulaire
 function resetAddForm() {
 	addPhotoForm.reset();
 	photoUploadZone.style.display = "";
