@@ -128,6 +128,7 @@ async function deleteWork(workId) {
 		if (!response.ok) throw new Error("Erreur " + response.status);
 
 		await fetchWorks();
+		// Supprimer la photo directement dans le DOM, pour eviter un surcout au serveur inutile
 		displayModalGallery();
 	} catch (error) {
 		alert("Impossible de supprimer : " + error.message);

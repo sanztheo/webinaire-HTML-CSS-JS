@@ -25,8 +25,8 @@ async function fetchWorks() {
 
 
 // -------------------------------------------------------
-// Fonction : afficher les works dans la galerie
-// - Vide la galerie existante
+// Fonction : afficher le projet 
+// - Vide le projet existant
 // - Filtre les works selon la catégorie active (en mémoire, pas d'appel API)
 // - Utilise un DocumentFragment pour insérer tout d'un coup (performance)
 // -------------------------------------------------------
