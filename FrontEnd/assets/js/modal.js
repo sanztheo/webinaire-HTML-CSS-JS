@@ -20,100 +20,106 @@ const photoTitle = document.getElementById("photo-title");
 const photoCategory = document.getElementById("photo-category");
 const validateBtn = document.getElementById("validate-btn");
 
+let categoriesLoaded = false;
+
 
 // ============================================================
 //  1. OUVERTURE / FERMETURE DE LA MODALE
 // ============================================================
 
-// -------------------------------------------------------
-// Ouvrir la modale (au clic sur "modifier")
-// - Afficher la modale (display: flex)
-// - Afficher la vue galerie, cacher la vue ajout
-// - Remplir la grille de miniatures
-// -------------------------------------------------------
 function openModal() {
-	setElementVisibilite("modal", true);
-	setElementVisibilite("modal-overlay", true);
-	setElementVisibilite("modal-gallery-view", true);
-	setElementVisibilite("modal-add-view", false);
+	modal.style.display = "flex";
+	modal.setAttribute("aria-hidden", "false");
+	showGalleryView();
 	displayModalGallery();
 }
 
-// -------------------------------------------------------
-// Fermer la modale
-// - Cacher la modale (display: none)
-// - Remettre la vue galerie par défaut
-// -------------------------------------------------------
 function closeModal() {
-	setElementVisibilite("modal", false);
-	setElementVisibilite("modal-overlay", false);
-	setElementVisibilite("modal-gallery-view", false);
-	setElementVisibilite("modal-add-view", false);
+	modal.style.display = "none";
+	modal.setAttribute("aria-hidden", "true");
+	showGalleryView();
+	resetAddForm();
+}
+
+function showGalleryView() {
+	modalGalleryView.style.display = "";
+	modalAddView.style.display = "none";
+}
+
+function showAddView() {
+	modalGalleryView.style.display = "none";
+	modalAddView.style.display = "";
 }
 
 // Clic sur le bouton "modifier" → ouvre la modale
-if (editWorksBtn) {
-	editWorksBtn.addEventListener("click", function () {
-		openModal();
-	});
+editWorksBtn.addEventListener("click", openModal);
+
+// Clic sur l'overlay → ferme la modale
+modal.querySelector(".modal-overlay").addEventListener("click", closeModal);
+
+// Clic sur les boutons × → ferme la modale
+for (const btn of modal.querySelectorAll(".modal-close")) {
+	btn.addEventListener("click", closeModal);
 }
 
-// Clic sur l'overlay ou les boutons ✕ → ferme la modale
-// TODO : ajouter addEventListener sur .modal-overlay → closeModal
-// TODO : ajouter addEventListener sur chaque .modal-close → closeModal
+// Fermer avec Échap
+document.addEventListener("keydown", function (e) {
+	if (e.key === "Escape" && modal.style.display === "flex") {
+		closeModal();
+	}
+});
 
 
 // ============================================================
 //  2. VUE GALERIE : afficher les miniatures + supprimer
 // ============================================================
 
-// -------------------------------------------------------
-// Fonction : afficher les miniatures dans la grille de la modale
-// - Vider la grille
-// - Pour chaque work dans allWorks, créer :
-//     <div class="modal-gallery-item">
-//       <img src="work.imageUrl" alt="work.title">
-//       <button class="delete-btn" data-id="work.id">
-//         <i class="fa-solid fa-trash-can"></i>
-//       </button>
-//     </div>
-// - Ajouter un event listener sur chaque bouton supprimer
-// -------------------------------------------------------
 function displayModalGallery() {
-	// TODO : vider modalGalleryGrid
-	modalGalleryGrid.innerHTML = "";
-	// TODO : boucler sur allWorks (la variable est dans gallery.js)
+	modalGalleryGrid.textContent = "";
+	const fragment = document.createDocumentFragment();
+
 	for (const work of allWorks) {
-		const galleryItem = document.createElement("div");
-		galleryItem.classList.add("modal-gallery-item");
-		galleryItem.innerHTML = `
-			<img src="${work.imageUrl}" alt="${work.title}">
-			<button class="delete-btn" data-id="${work.id}">
-				<i class="fa-solid fa-trash-can"></i>
-			</button>
-		`;
-		modalGalleryGrid.appendChild(galleryItem);
+		const item = document.createElement("div");
+		item.classList.add("modal-gallery-item");
+
+		const img = document.createElement("img");
+		img.src = work.imageUrl;
+		img.alt = work.title;
+
+		const deleteBtn = document.createElement("button");
+		deleteBtn.classList.add("delete-btn");
+		deleteBtn.dataset.id = work.id;
+
+		const icon = document.createElement("i");
+		icon.classList.add("fa-solid", "fa-trash-can");
+		deleteBtn.appendChild(icon);
+
+		item.appendChild(img);
+		item.appendChild(deleteBtn);
+		fragment.appendChild(item);
 	}
-	for (const deleteBtn of document.querySelectorAll(".delete-btn")) {
-		deleteBtn.addEventListener("click", function () {
-			deleteWork(this.dataset.id);
-		});
-	}
+
+	modalGalleryGrid.appendChild(fragment);
 }
 
+// Délégation d'événement : un seul listener pour tous les boutons supprimer
+modalGalleryGrid.addEventListener("click", function (e) {
+	const deleteBtn = e.target.closest(".delete-btn");
+	if (deleteBtn) deleteWork(deleteBtn.dataset.id);
+});
 
-// -------------------------------------------------------
-// Fonction : supprimer un work
-// - Faire un fetch DELETE sur /works/:id
-// - Penser à envoyer le token dans le header Authorization
-// - Si ok : retirer le work du DOM (modale + galerie principale)
-//           ou re-fetcher les works
-// -------------------------------------------------------
 async function deleteWork(workId) {
-	// TODO : récupérer le token depuis localStorage
-	// TODO : fetch DELETE sur API_URL + "/works/" + workId
-	//        avec le header : Authorization: "Bearer " + token
-	// TODO : si ok → re-fetcher les works (fetchWorks) et rafraîchir la modale
+	const token = localStorage.getItem("token");
+
+	const response = await fetch(API_URL + "/works/" + workId, {
+		method: "DELETE",
+		headers: { Authorization: "Bearer " + token },
+	});
+
+	if (response.ok) {
+		await fetchWorks();
+		displayModalGallery();
+	}
 }
 
 
@@ -121,94 +127,102 @@ async function deleteWork(workId) {
 //  3. BASCULER VERS LA VUE "AJOUT PHOTO"
 // ============================================================
 
-// Clic sur "Ajouter une photo" → affiche le formulaire d'ajout
-if (addPhotoBtn) {
-	addPhotoBtn.addEventListener("click", function () {
-		// TODO : cacher la vue galerie (modalGalleryView)
-		// TODO : afficher la vue ajout (modalAddView)
-		// TODO : charger les catégories dans le <select> si pas déjà fait
-	});
-}
+addPhotoBtn.addEventListener("click", function () {
+	showAddView();
+	if (!categoriesLoaded) loadCategories();
+});
 
 // Clic sur la flèche retour → revient à la vue galerie
-// TODO : addEventListener sur .modal-back → cacher modalAddView, afficher modalGalleryView
+modal.querySelector(".modal-back").addEventListener("click", function () {
+	showGalleryView();
+	resetAddForm();
+});
 
 
 // ============================================================
 //  4. FORMULAIRE D'AJOUT : upload image + titre + catégorie
 // ============================================================
 
-// -------------------------------------------------------
-// Charger les catégories dans le <select>
-// - Fetch GET sur /categories
-// - Créer une <option> par catégorie
-// -------------------------------------------------------
 async function loadCategories() {
-	// TODO : fetch les catégories depuis l'API
-	// TODO : vider le select (sauf l'option disabled par défaut)
-	// TODO : créer une <option value="cat.id">cat.name</option> pour chaque catégorie
+	const categories = await fetchData("/categories");
+
+	// Garder uniquement l'option placeholder
+	photoCategory.length = 1;
+
+	for (const cat of categories) {
+		const option = document.createElement("option");
+		option.value = cat.id;
+		option.textContent = cat.name;
+		photoCategory.appendChild(option);
+	}
+
+	categoriesLoaded = true;
 }
 
+// Prévisualisation de l'image
+photoFile.addEventListener("change", function () {
+	const file = photoFile.files[0];
+	if (!file) return;
 
-// -------------------------------------------------------
-// Prévisualisation de l'image sélectionnée
-// - Quand l'utilisateur choisit un fichier (change sur l'input file)
-// - Lire le fichier avec FileReader
-// - Afficher l'aperçu et cacher la zone d'upload
-// -------------------------------------------------------
-if (photoFile) {
-	photoFile.addEventListener("change", function () {
-		// TODO : vérifier qu'un fichier a été sélectionné
-		// TODO : vérifier la taille (max 4 Mo)
-		// TODO : créer un FileReader, lire le fichier en dataURL
-		// TODO : dans reader.onload : mettre le résultat dans previewImg.src
-		// TODO : cacher la zone d'upload, afficher le preview
-		// TODO : appeler checkFormValidity()
-	});
-}
+	if (file.size > 4 * 1024 * 1024) {
+		alert("L'image ne doit pas dépasser 4 Mo.");
+		photoFile.value = "";
+		return;
+	}
 
+	const reader = new FileReader();
+	reader.onload = function () {
+		previewImg.src = reader.result;
+		photoUploadZone.style.display = "none";
+		photoPreview.style.display = "";
+		checkFormValidity();
+	};
+	reader.readAsDataURL(file);
+});
 
-// -------------------------------------------------------
-// Vérifier si le formulaire est complet pour activer le bouton "Valider"
-// - Image sélectionnée + titre rempli + catégorie choisie
-// - Si tout est ok → ajouter .active au bouton et retirer disabled
-// - Sinon → retirer .active et remettre disabled
-// -------------------------------------------------------
+// Validation en temps réel
 function checkFormValidity() {
-	// TODO : vérifier que photoFile.files[0] existe
-	// TODO : vérifier que photoTitle.value n'est pas vide
-	// TODO : vérifier que photoCategory.value n'est pas vide
-	// TODO : si tout est ok → validateBtn.disabled = false + ajouter classe .active
-	// TODO : sinon → validateBtn.disabled = true + retirer classe .active
+	const isValid =
+		photoFile.files[0] &&
+		photoTitle.value.trim() !== "" &&
+		photoCategory.value !== "";
+
+	validateBtn.disabled = !isValid;
+	validateBtn.classList.toggle("active", isValid);
 }
 
-// Écouter les changements sur le titre et la catégorie pour valider en temps réel
-if (photoTitle) photoTitle.addEventListener("input", checkFormValidity);
-if (photoCategory) photoCategory.addEventListener("change", checkFormValidity);
+photoTitle.addEventListener("input", checkFormValidity);
+photoCategory.addEventListener("change", checkFormValidity);
 
+// Soumission du formulaire
+addPhotoForm.addEventListener("submit", async function (e) {
+	e.preventDefault();
 
-// -------------------------------------------------------
-// Soumission du formulaire d'ajout
-// - Empêcher le comportement par défaut
-// - Créer un FormData avec image, title, category
-// - Envoyer un POST à /works avec le token
-// - Si ok : fermer la modale et re-fetcher les works
-// -------------------------------------------------------
-if (addPhotoForm) {
-	addPhotoForm.addEventListener("submit", async function (e) {
-		// TODO : empêcher le rechargement
+	const formData = new FormData();
+	formData.append("image", photoFile.files[0]);
+	formData.append("title", photoTitle.value);
+	formData.append("category", photoCategory.value);
 
-		// TODO : créer un new FormData()
-		// TODO : append("image", photoFile.files[0])
-		// TODO : append("title", photoTitle.value)
-		// TODO : append("category", photoCategory.value)
+	const token = localStorage.getItem("token");
 
-		// TODO : récupérer le token depuis localStorage
-		// TODO : fetch POST sur API_URL + "/works"
-		//        avec le header Authorization: "Bearer " + token
-		//        et le body : formData (PAS de Content-Type, le navigateur le gère)
-
-		// TODO : si ok → fermer la modale, re-fetcher les works
-		//        réinitialiser le formulaire
+	const response = await fetch(API_URL + "/works", {
+		method: "POST",
+		headers: { Authorization: "Bearer " + token },
+		body: formData,
 	});
+
+	if (response.ok) {
+		await fetchWorks();
+		closeModal();
+	}
+});
+
+// Réinitialiser le formulaire d'ajout
+function resetAddForm() {
+	addPhotoForm.reset();
+	photoUploadZone.style.display = "";
+	photoPreview.style.display = "none";
+	previewImg.src = "";
+	validateBtn.disabled = true;
+	validateBtn.classList.remove("active");
 }
