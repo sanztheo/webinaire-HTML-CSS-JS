@@ -32,10 +32,11 @@ const validateBtn = document.getElementById("validate-btn");
 // - Remplir la grille de miniatures
 // -------------------------------------------------------
 function openModal() {
-	// TODO : afficher la modale (#modal) → display = "flex"
-	// TODO : mettre aria-hidden à "false"
-	// TODO : s'assurer que la vue galerie est visible et la vue ajout cachée
-	// TODO : appeler displayModalGallery() pour remplir la grille
+	setElementVisibilite("modal", true);
+	setElementVisibilite("modal-overlay", true);
+	setElementVisibilite("modal-gallery-view", true);
+	setElementVisibilite("modal-add-view", false);
+	displayModalGallery();
 }
 
 // -------------------------------------------------------
@@ -44,14 +45,17 @@ function openModal() {
 // - Remettre la vue galerie par défaut
 // -------------------------------------------------------
 function closeModal() {
-	// TODO : cacher la modale (#modal) → display = "none"
-	// TODO : mettre aria-hidden à "true"
-	// TODO : réinitialiser la vue (revenir à la galerie, vider le formulaire)
+	setElementVisibilite("modal", false);
+	setElementVisibilite("modal-overlay", false);
+	setElementVisibilite("modal-gallery-view", false);
+	setElementVisibilite("modal-add-view", false);
 }
 
 // Clic sur le bouton "modifier" → ouvre la modale
 if (editWorksBtn) {
-	editWorksBtn.addEventListener("click", openModal);
+	editWorksBtn.addEventListener("click", function () {
+		openModal();
+	});
 }
 
 // Clic sur l'overlay ou les boutons ✕ → ferme la modale
@@ -77,9 +81,24 @@ if (editWorksBtn) {
 // -------------------------------------------------------
 function displayModalGallery() {
 	// TODO : vider modalGalleryGrid
+	modalGalleryGrid.innerHTML = "";
 	// TODO : boucler sur allWorks (la variable est dans gallery.js)
-	// TODO : créer les éléments et les ajouter à la grille
-	// TODO : sur chaque bouton .delete-btn → addEventListener click → deleteWork(id)
+	for (const work of allWorks) {
+		const galleryItem = document.createElement("div");
+		galleryItem.classList.add("modal-gallery-item");
+		galleryItem.innerHTML = `
+			<img src="${work.imageUrl}" alt="${work.title}">
+			<button class="delete-btn" data-id="${work.id}">
+				<i class="fa-solid fa-trash-can"></i>
+			</button>
+		`;
+		modalGalleryGrid.appendChild(galleryItem);
+	}
+	for (const deleteBtn of document.querySelectorAll(".delete-btn")) {
+		deleteBtn.addEventListener("click", function () {
+			deleteWork(this.dataset.id);
+		});
+	}
 }
 
 
