@@ -42,32 +42,35 @@ loginForm.addEventListener("submit", async (event) => {
 		divError.textContent = "Email ou mot de passe incorrect ";
 		return;
 	}
-	const token = await envoyerLogin(email, password);
+	try {
+		const token = await envoyerLogin(email, password);
 
-	if (token) {
-		localStorage.setItem("token", token);
-		window.location.href = "index.html";
+		if (token) {
+			localStorage.setItem("token", token);
+			window.location.href = "index.html";
+		}
+	} catch (error) {
+		divError.textContent = "Le serveur est inaccessible";
 	}
 });
 
 async function envoyerLogin(email, password) {
-	let response;
 	try {
-		response = await fetch("http://localhost:5678/api/users/login", {
+		const response = await fetch("http://localhost:5678/api/users/login", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ email, password })
 		});
-	} catch {
+
+		if (!response.ok) {
+			divError.textContent = "Erreur server " + response.status;
+			return null;
+		}
+
+		const data = await response.json();
+		return data.token;
+	} catch (error) {
 		divError.textContent = "Le serveur est inaccessible";
 		return null;
 	}
-
-	if (!response.ok) {
-		divError.textContent = "Erreur server " + response.status;
-		return null;
-	}
-
-	const data = await response.json();
-	return data.token;
 }

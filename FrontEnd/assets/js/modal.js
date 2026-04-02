@@ -145,6 +145,7 @@ async function deleteWork(workId) {
 // ============================================================
 
 addPhotoBtn.addEventListener("click", function () {
+	resetAddForm();
 	showAddView();
 	if (!categoriesLoaded) loadCategories();
 });
