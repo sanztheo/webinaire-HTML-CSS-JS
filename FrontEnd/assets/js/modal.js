@@ -25,6 +25,7 @@ const MAX_FILE_SIZE = 4 * 1024 * 1024;
 // -- État
 let categoriesLoaded = false;
 let previousFocus = null;
+let hasValidFile = false;
 
 
 // ============================================================
@@ -189,6 +190,8 @@ photoFile.addEventListener("change", function () {
 		return;
 	}
 
+	hasValidFile = true;
+
 	const reader = new FileReader();
 	reader.onload = function () {
 		previewImg.src = reader.result;
@@ -202,7 +205,7 @@ photoFile.addEventListener("change", function () {
 // Validation en temps réel
 function checkFormValidity() {
 	const isValid =
-		photoFile.files[0] &&
+		hasValidFile &&
 		photoTitle.value.trim() !== "" &&
 		photoCategory.value !== "";
 
@@ -256,6 +259,8 @@ addPhotoForm.addEventListener("submit", async function (e) {
 // Réinitialiser le formulaire
 function resetAddForm() {
 	addPhotoForm.reset();
+	photoFile.value = "";
+	hasValidFile = false;
 	photoUploadZone.style.display = "";
 	photoPreview.style.display = "none";
 	previewImg.src = "";
