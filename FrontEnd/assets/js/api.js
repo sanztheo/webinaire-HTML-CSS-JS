@@ -6,10 +6,14 @@
 const API_URL = "http://localhost:5678/api";
 
 async function fetchData(endpoint) {
-    const reponse = await fetch(API_URL + endpoint);
+    let reponse;
+    try {
+        reponse = await fetch(API_URL + endpoint);
+    } catch {
+        throw new Error("Le serveur est inaccessible");
+    }
     if (!reponse.ok) throw new Error(`Erreur ${reponse.status}`);
     return reponse.json();
-    
 }
 
 

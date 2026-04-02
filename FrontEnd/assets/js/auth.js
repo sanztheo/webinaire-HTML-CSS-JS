@@ -42,7 +42,6 @@ function setupLogout() {
 		logoutLink.addEventListener("click", function (e) {
 			// TODO : empêcher le comportement par défaut
 			e.preventDefault();
-			// TODO : supprimer le token → localStorage.removeItem("token")
 			localStorage.removeItem("token");
 			// TODO : rappelle de setElementVisibilite manipulation DOM
 			setElementVisibilite("edit-banner", false);

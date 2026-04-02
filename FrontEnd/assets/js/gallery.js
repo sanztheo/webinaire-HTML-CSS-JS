@@ -19,8 +19,15 @@ let activeFilter = null;
 // - Appelle renderGallery() pour afficher les works
 // -------------------------------------------------------
 async function fetchWorks() {
-	allWorks = await fetchData("/works");
-	renderGallery();
+	try {
+		allWorks = await fetchData("/works");
+		renderGallery();
+	} catch (error) {
+		gallery.textContent = "";
+		const p = document.createElement("p");
+		p.textContent = error.message;
+		gallery.appendChild(p);
+	}
 }
 
 
@@ -66,8 +73,12 @@ function renderGallery() {
 // - Appelle renderFilters() pour créer les boutons
 // -------------------------------------------------------
 async function fetchCategories() {
-	allCategories = await fetchData("/categories");
-	renderFilters();
+	try {
+		allCategories = await fetchData("/categories");
+		renderFilters();
+	} catch {
+		// Les filtres ne s'affichent pas si le serveur est down
+	}
 }
 
 

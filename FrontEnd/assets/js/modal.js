@@ -119,20 +119,24 @@ modalGalleryGrid.addEventListener("click", function (e) {
 async function deleteWork(workId) {
 	const token = localStorage.getItem("token");
 
+	let response;
 	try {
-		const response = await fetch(API_URL + "/works/" + workId, {
+		response = await fetch(API_URL + "/works/" + workId, {
 			method: "DELETE",
 			headers: { Authorization: "Bearer " + token },
 		});
-
-		if (!response.ok) throw new Error("Erreur " + response.status);
-
-		await fetchWorks();
-		// Supprimer la photo directement dans le DOM, pour eviter un surcout au serveur inutile
-		displayModalGallery();
-	} catch (error) {
-		alert("Impossible de supprimer : " + error.message);
+	} catch {
+		alert("Le serveur est inaccessible");
+		return;
 	}
+
+	if (!response.ok) {
+		alert("Impossible de supprimer : Erreur " + response.status);
+		return;
+	}
+
+	await fetchWorks();
+	displayModalGallery();
 }
 
 
@@ -211,6 +215,11 @@ photoCategory.addEventListener("change", checkFormValidity);
 // Soumission avec protection double-clic
 addPhotoForm.addEventListener("submit", async function (e) {
 	e.preventDefault();
+
+	if (!photoFile.files[0] || !photoTitle.value.trim() || !photoCategory.value) {
+		return;
+	}
+
 	validateBtn.disabled = true;
 
 	const formData = new FormData();
@@ -220,21 +229,27 @@ addPhotoForm.addEventListener("submit", async function (e) {
 
 	const token = localStorage.getItem("token");
 
+	let response;
 	try {
-		const response = await fetch(API_URL + "/works", {
+		response = await fetch(API_URL + "/works", {
 			method: "POST",
 			headers: { Authorization: "Bearer " + token },
 			body: formData,
 		});
-
-		if (!response.ok) throw new Error("Erreur " + response.status);
-
-		await fetchWorks();
-		closeModal();
-	} catch (error) {
-		alert("Impossible d'ajouter la photo : " + error.message);
+	} catch {
+		alert("Le serveur est inaccessible");
 		validateBtn.disabled = false;
+		return;
 	}
+
+	if (!response.ok) {
+		alert("Impossible d'ajouter la photo : Erreur " + response.status);
+		validateBtn.disabled = false;
+		return;
+	}
+
+	await fetchWorks();
+	closeModal();
 });
 
 // Réinitialiser le formulaire
